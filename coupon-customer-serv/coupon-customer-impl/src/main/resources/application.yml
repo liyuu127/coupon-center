@@ -1,13 +1,12 @@
-# 项目的启动端口
 server:
-  port: 20000
+  port: 20001
+# 在返回给页面的结果里，把错误信息添加到message里
   error:
     include-message: always
 
 spring:
   application:
-    # 定义项目名称
-    name: coupon-template-serv
+    name: coupon-customer-serv
   datasource:
     # mysql数据源
     username: root
@@ -30,13 +29,12 @@ spring:
       # 在生产环境全部为none，防止ddl结构被自动执行
       ddl-auto: none
     properties:
-      hibernate.format_sql: true
       hibernate.show_sql: true
+      hibernate.format_sql: true
     open-in-view: false
   cloud:
     nacos:
       discovery:
-        enabled: true
         # Nacos的服务注册地址，可以配置多个，逗号分隔
         server-addr: 192.168.253.130:8848
         # 服务注册到Nacos上的名称，一般不用配置
@@ -48,7 +46,7 @@ spring:
         heart-beat-timeout: 20000
         # 元数据部分 - 可以自己随便定制
         metadata:
-          name: template
+          name: customer
           mydata: abc
         # 客户端在启动时是否读取本地配置项(一个文件)来获取服务列表
         # 注：推荐该值为false，若改成true。则客户端会在本地的一个
@@ -63,7 +61,7 @@ spring:
         # 向注册中心注册服务，默认为true
         # 如果只消费服务，不作为服务提供方，倒是可以设置成false，减少开销
         register-enabled: true
-
 logging:
   level:
     com.broadview.coupon: debug
+

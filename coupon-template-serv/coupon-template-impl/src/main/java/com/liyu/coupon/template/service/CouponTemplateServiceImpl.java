@@ -12,6 +12,7 @@ import com.liyu.coupon.template.service.intf.CouponTemplateService;
 import com.liyu.coupon.template.dao.CouponTemplateDao;
 import com.liyu.coupon.template.service.intf.CouponTemplateService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
@@ -90,7 +91,7 @@ public class CouponTemplateServiceImpl implements CouponTemplateService {
     public PagedCouponTemplateInfo search(TemplateSearchParams request) {
         CouponTemplate example = CouponTemplate.builder()
                 .shopId(request.getShopId())
-                .category(CouponType.convert(request.getType()))
+                .category(StringUtils.isNotBlank(request.getType())?CouponType.convert(request.getType()):null)
                 .available(request.getAvailable())
                 .name(request.getName())
                 .build();
