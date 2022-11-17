@@ -1,5 +1,6 @@
 package com.liyu.coupon.customer.config;
 
+import feign.Logger;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
@@ -13,5 +14,10 @@ public class Configuration {
     @LoadBalanced
     public WebClient.Builder webClientBuilder(){
         return WebClient.builder();
+    }
+
+    @Bean
+    Logger.Level feignLogger() {
+        return Logger.Level.FULL;
     }
 }
