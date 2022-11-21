@@ -23,13 +23,13 @@ public class TemplateServiceFallbackFactory implements FallbackFactory<TemplateS
 
             @Override
             public CouponTemplateInfo getTemplate(Long id) {
-                log.info("fallback factory method test" + cause);
+                log.error("fallback factory method getTemplate" , cause);
                 return null;
             }
 
             @Override
             public Map<Long, CouponTemplateInfo> getTemplateInBatch(Collection<Long> ids) {
-                log.info("fallback factory method test" + cause);
+                log.error("fallback factory method getTemplateInBatch", cause);
                 return Maps.newHashMap();
             }
         };

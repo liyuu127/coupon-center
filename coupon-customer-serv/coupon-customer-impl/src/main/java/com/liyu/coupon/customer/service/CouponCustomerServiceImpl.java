@@ -39,7 +39,7 @@ public class CouponCustomerServiceImpl implements CouponCustomerService {
 
     private final CalculationService calculationService;
 
-    public CouponCustomerServiceImpl(CouponDao couponDao, @Qualifier("templateService") TemplateService templateService, CalculationService calculationService) {
+    public CouponCustomerServiceImpl(CouponDao couponDao, TemplateService templateService, CalculationService calculationService) {
         this.couponDao = couponDao;
         this.templateService = templateService;
         this.calculationService = calculationService;
