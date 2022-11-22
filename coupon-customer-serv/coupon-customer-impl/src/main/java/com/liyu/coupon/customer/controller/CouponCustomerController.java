@@ -1,5 +1,6 @@
 package com.liyu.coupon.customer.controller;
 
+import com.alibaba.csp.sentinel.annotation.SentinelResource;
 import com.liyu.coupon.calculation.api.beans.ShoppingCart;
 import com.liyu.coupon.calculation.api.beans.SimulationOrder;
 import com.liyu.coupon.calculation.api.beans.SimulationResponse;
@@ -8,7 +9,6 @@ import com.liyu.coupon.customer.api.beans.SearchCoupon;
 import com.liyu.coupon.customer.dao.entity.Coupon;
 import com.liyu.coupon.customer.service.intf.CouponCustomerService;
 import com.liyu.coupon.template.api.beans.CouponInfo;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -20,7 +20,7 @@ import java.util.List;
 @Slf4j
 @RestController
 @RequestMapping("coupon-customer")
-@AllArgsConstructor
+//@AllArgsConstructor
 @RequestScope
 public class CouponCustomerController {
 
@@ -29,6 +29,11 @@ public class CouponCustomerController {
     @Value("${disableCouponRequest:false}")
     private Boolean disableCoupon;
 
+    public CouponCustomerController(CouponCustomerService customerService) {
+        this.customerService = customerService;
+    }
+
+    @SentinelResource(value = "requestCoupon")
     @PostMapping("requestCoupon")
     public Coupon requestCoupon(@Valid @RequestBody RequestCoupon request) {
         if (disableCoupon) {
@@ -59,6 +64,7 @@ public class CouponCustomerController {
 
 
     // 实现的时候最好封装一个search object类
+    @SentinelResource(value = "customer-findCoupon")
     @PostMapping("findCoupon")
     public List<CouponInfo> findCoupon(@Valid @RequestBody SearchCoupon request) {
         return customerService.findCoupon(request);
