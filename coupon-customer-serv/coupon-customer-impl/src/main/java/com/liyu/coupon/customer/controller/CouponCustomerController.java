@@ -7,6 +7,7 @@ import com.liyu.coupon.calculation.api.beans.SimulationResponse;
 import com.liyu.coupon.customer.api.beans.RequestCoupon;
 import com.liyu.coupon.customer.api.beans.SearchCoupon;
 import com.liyu.coupon.customer.dao.entity.Coupon;
+import com.liyu.coupon.customer.event.CouponProducer;
 import com.liyu.coupon.customer.service.intf.CouponCustomerService;
 import com.liyu.coupon.template.api.beans.CouponInfo;
 import lombok.extern.slf4j.Slf4j;
@@ -25,12 +26,14 @@ import java.util.List;
 public class CouponCustomerController {
 
     private final CouponCustomerService customerService;
+    private final CouponProducer couponProducer;
 
     @Value("${disableCouponRequest:false}")
     private Boolean disableCoupon;
 
-    public CouponCustomerController(CouponCustomerService customerService) {
+    public CouponCustomerController(CouponCustomerService customerService, CouponProducer couponProducer) {
         this.customerService = customerService;
+        this.couponProducer = couponProducer;
     }
 
     @SentinelResource(value = "requestCoupon")
@@ -68,6 +71,18 @@ public class CouponCustomerController {
     @PostMapping("findCoupon")
     public List<CouponInfo> findCoupon(@Valid @RequestBody SearchCoupon request) {
         return customerService.findCoupon(request);
+    }
+
+
+    @PostMapping("requestCouponEvent")
+    public void requestCouponEvent(@Valid @RequestBody RequestCoupon request) {
+        couponProducer.sendCoupon(request);
+    }
+    // 用户删除优惠券
+    @DeleteMapping("deleteCouponEvent")
+    public void deleteCouponEvent(@RequestParam("userId") Long userId,
+                                  @RequestParam("couponId") Long couponId) {
+        couponProducer.deleteCoupon(userId, couponId);
     }
 
 }
