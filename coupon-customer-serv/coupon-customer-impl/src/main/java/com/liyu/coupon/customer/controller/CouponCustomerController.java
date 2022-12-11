@@ -10,6 +10,7 @@ import com.liyu.coupon.customer.dao.entity.Coupon;
 import com.liyu.coupon.customer.event.CouponProducer;
 import com.liyu.coupon.customer.service.intf.CouponCustomerService;
 import com.liyu.coupon.template.api.beans.CouponInfo;
+import io.seata.spring.annotation.GlobalTransactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
@@ -78,11 +79,18 @@ public class CouponCustomerController {
     public void requestCouponEvent(@Valid @RequestBody RequestCoupon request) {
         couponProducer.sendCoupon(request);
     }
+
     // 用户删除优惠券
     @DeleteMapping("deleteCouponEvent")
     public void deleteCouponEvent(@RequestParam("userId") Long userId,
                                   @RequestParam("couponId") Long couponId) {
         couponProducer.deleteCoupon(userId, couponId);
+    }
+
+    @RequestMapping(method = RequestMethod.DELETE, path = "template")
+    @GlobalTransactional(name = "coupon-customer-serv", rollbackFor = Exception.class)
+    public void deleteTemplate(@RequestParam("templateId") Long templateId) {
+        customerService.deleteCouponTemplate(templateId);
     }
 
 }

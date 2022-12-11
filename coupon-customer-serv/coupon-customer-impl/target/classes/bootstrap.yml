@@ -2,6 +2,9 @@ spring:
   application:
     name: coupon-customer-serv
   cloud:
+    alibaba:
+      seata:
+        tx-service-group: seata-server-group
     nacos:
       config:
         server-addr: 192.168.253.130:8848
@@ -59,7 +62,7 @@ spring:
           environment: # 连接信息
             spring:
               rabbitmq:
-                host: 192.168.253.130
+                host: localhost
                 port: 5672
                 username: guest
                 password: guest
@@ -76,6 +79,35 @@ spring:
           # 消费组，同一个组内只能被消费一次
           group: add-coupon-group
           binder: my-rabbit
+          consumer:
+            # 如果最大尝试次数为1，即不重试
+            # 默认是做3次尝试
+            max-attempts: 1
+            # 两次重试之间的初始间隔
+            backOffInitialInterval: 2000
+            # 重试最大间隔
+            backOffMaxInterval: 10000
+            # 每次重试后，间隔时间乘以的系数
+            backOffMultiplier: 2
+            # 如果某个异常你不想重试，写在这里
+        #            retryableExceptions:
+        #              java.lang.IllegalArgumentException: false
+        # 延迟发券 - producer
+        addCouponDelay-out-0:
+          destination: request-coupon-delayed-topic
+          content-type: application/json
+          binder: my-rabbit
+        # 延迟发券 - Consumer
+        addCouponDelay-in-0:
+          destination: request-coupon-delayed-topic
+          content-type: application/json
+          # 消费组，同一个组内只能被消费一次
+          group: add-coupon-group
+          binder: my-rabbit
+          consumer:
+            # 如果最大尝试次数为1，即不重试
+            # 默认是做3次尝试
+            max-attempts: 1
         # 删除coupon - Producer
         deleteCoupon-out-0:
           destination: delete-coupon-topic
@@ -87,8 +119,27 @@ spring:
           content-type: text/plain
           group: delete-coupon-group
           binder: my-rabbit
+          # 最大尝试次数为1，如果不设置的话，默认是做3次尝试
+          consumer:
+            max-attempts: 1
       function:
-        definition: addCoupon;deleteCoupon
+        definition: addCoupon;deleteCoupon;addCouponDelay
+      rabbit:
+        bindings:
+          # requeue重试
+          #          addCoupon-in-0:
+          #            consumer:
+          #              requeue-rejected: true
+          addCouponDelay-out-0:
+            producer:
+              delayed-exchange: true
+          addCouponDelay-in-0:
+            consumer:
+              delayed-exchange: true
+          deleteCoupon-in-0:
+            consumer:
+              auto-bind-dlq: true
+  #      default-binder: rabbit
   sleuth:
     sampler:
       # 采样率的概率，100%采样
@@ -101,3 +152,16 @@ spring:
     rabbitmq:
       addresses: 192.168.253.130:5672
       queue: zipkin
+seata:
+  application-id: coupon-customer-serv
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      server-addr: 192.168.253.130:8848
+      namespace: dev
+      group: DEFAULT_GROUP
+      cluster: Cluster-A
+  service:
+    vgroup-mapping:
+      seata-server-group: Cluster-A

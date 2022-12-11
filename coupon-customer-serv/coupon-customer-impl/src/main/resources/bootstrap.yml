@@ -2,6 +2,9 @@ spring:
   application:
     name: coupon-customer-serv
   cloud:
+    alibaba:
+      seata:
+        tx-service-group: seata-server-group
     nacos:
       config:
         server-addr: 192.168.253.130:8848
@@ -149,3 +152,16 @@ spring:
     rabbitmq:
       addresses: 192.168.253.130:5672
       queue: zipkin
+seata:
+  application-id: coupon-customer-serv
+  registry:
+    type: nacos
+    nacos:
+      application: seata-server
+      server-addr: 192.168.253.130:8848
+      namespace: dev
+      group: DEFAULT_GROUP
+      cluster: Cluster-A
+  service:
+    vgroup-mapping:
+      seata-server-group: Cluster-A
